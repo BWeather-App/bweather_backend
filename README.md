@@ -21,10 +21,14 @@ Aplikasi ini dirancang untuk backend dari aplikasi mobile yang dibangun dengan F
 
 ## 🗂 Struktur Folder
 
-    bweather-backend/
+    - bweather-backend/
+
     - config/ # Konfigurasi API key & URL
+
     - controllers/ # Logika bisnis: WeatherController, SearchController
+
     - routes/ # Routing endpoint API
+
     - public/ # Entry point index.php
 
 ---
