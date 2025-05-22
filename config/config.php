@@ -1,5 +1,4 @@
 <?php
-//config.php: menyimpan API key, base URL, dan pengaturan global lainnya.
 // Load .env file jika belum dimuat
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -12,4 +11,3 @@ if (file_exists(__DIR__ . '/../.env')) {
 
 define('TOMORROW_API_KEY', getenv('TOMORROW_API_KEY'));
 define('TOMORROW_BASE_URL', getenv('TOMORROW_BASE_URL'));
-
