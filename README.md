@@ -19,16 +19,18 @@ Aplikasi ini dirancang untuk backend dari aplikasi mobile yang dibangun dengan F
 
 ---
 
-🗂 Struktur Folder
+## 🗂 Struktur Folder
+
 bweather-backend/
-├── config/ # Konfigurasi API key & URL
-├── controllers/ # Logika bisnis: WeatherController, SearchController
-├── routes/ # Routing endpoint API
-└── public/ # Entry point index.php
+── config/ # Konfigurasi API key & URL
+── controllers/ # Logika bisnis: WeatherController, SearchController
+── routes/ # Routing endpoint API
+── public/ # Entry point index.php
 
 ---
 
-📦 API External
+## 📦 API External
+
 🔗 Tomorrow.io
 Menggunakan 3 endpoint:
 
@@ -40,7 +42,7 @@ Menggunakan 3 endpoint:
 
 ---
 
-⚙️ Cara Menjalankan (Local)
+## ⚙️ Cara Menjalankan (Local)
 
 1. Clone repo ini
 
@@ -52,4 +54,7 @@ Menggunakan 3 endpoint:
 
 ---
 
-👨‍💻 Developer - Backend: Tim Bweather-Backend - Dibuat dengan 💛 menggunakan PHP Native
+## 👨‍💻 Developer
+
+    - Backend: Tim Bweather-Backend
+    - Dibuat dengan 💛 menggunakan PHP Native
