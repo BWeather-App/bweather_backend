@@ -161,12 +161,27 @@ class WeatherController {
         return $kelompok;
     }
 
-    private function fetchData($url) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $respon = curl_exec($ch);
-        curl_close($ch);
-        return $respon;
+private function fetchData($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, true); // penting untuk membaca status code
+    $response = curl_exec($ch);
+
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 429) {
+        // Rate limit (Too Many Requests)
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'API kamu limit brok, bayar dulu sana 😤']);
+        exit;
     }
+
+    return $body;
+}
+
 }
