@@ -23,13 +23,25 @@ class WeatherController {
         'lusa' => $this->gabungCuacaAstronomi($perJam[$lusa] ?? [], $astronomi[$lusa] ?? []),
         'hari_ke_3' => $this->gabungCuacaAstronomi($perJam[$hariKe3] ?? [], $astronomi[$hariKe3] ?? []),
     ];
+    $name = $this->getPlaceNameFromLatLon($latitude, $longitude);
+$locationInfo = [
+    'lat' => floatval($latitude),
+    'lon' => floatval($longitude),
+    'name' => $name
+];
 
-    if ($returnData) {
-        return $dataCuaca; // ✅ hanya return tanpa echo/header
-    }
+$result = [
+    'location' => $locationInfo,
+    'weather' => $dataCuaca
+];
 
-    header('Content-Type: application/json');
-    echo json_encode($dataCuaca);
+  if ($returnData) {
+    return $result;
+}
+
+header('Content-Type: application/json');
+echo json_encode($result);
+
 }
 
     private function getRealtimeWeather($lokasi) {
@@ -161,12 +173,62 @@ class WeatherController {
         return $kelompok;
     }
 
-    private function fetchData($url) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $respon = curl_exec($ch);
-        curl_close($ch);
-        return $respon;
+private function fetchData($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, true); // penting untuk membaca status code
+    $response = curl_exec($ch);
+
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 429) {
+        // Rate limit (Too Many Requests)
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'API kamu limit brok, bayar dulu sana 😤']);
+        exit;
     }
+
+    return $body;
+}
+
+private function getPlaceNameFromLatLon($lat, $lon) {
+    $apiKey = getenv('GEOCODING_API_KEY');
+    $url = "https://api.opencagedata.com/geocode/v1/json?q=$lat+$lon&key=$apiKey";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $res = curl_exec($ch);
+    curl_close($ch);
+
+    $data = json_decode($res, true);
+
+    if (isset($data['results'][0]['components'])) {
+        $components = $data['results'][0]['components'];
+
+        // Prioritaskan kabupaten/kota
+        $cityOrRegency = $components['city'] 
+            ?? $components['municipality'] 
+            ?? $components['town'] 
+            ?? $components['county'] 
+            ?? $components['region'] 
+            ?? null;
+
+        $province = $components['state'] ?? null;
+
+        if ($cityOrRegency && $province) {
+            return "$cityOrRegency, $province";
+        }
+    }
+
+    return 'Lokasi Tidak Dikenal';
+}
+
+
+
 }
