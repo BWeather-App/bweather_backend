@@ -23,13 +23,25 @@ class WeatherController {
         'lusa' => $this->gabungCuacaAstronomi($perJam[$lusa] ?? [], $astronomi[$lusa] ?? []),
         'hari_ke_3' => $this->gabungCuacaAstronomi($perJam[$hariKe3] ?? [], $astronomi[$hariKe3] ?? []),
     ];
+    $name = $this->getPlaceNameFromLatLon($latitude, $longitude);
+$locationInfo = [
+    'lat' => floatval($latitude),
+    'lon' => floatval($longitude),
+    'name' => $name
+];
 
-    if ($returnData) {
-        return $dataCuaca; // ✅ hanya return tanpa echo/header
-    }
+$result = [
+    'location' => $locationInfo,
+    'weather' => $dataCuaca
+];
 
-    header('Content-Type: application/json');
-    echo json_encode($dataCuaca);
+  if ($returnData) {
+    return $result;
+}
+
+header('Content-Type: application/json');
+echo json_encode($result);
+
 }
 
     private function getRealtimeWeather($lokasi) {
@@ -183,5 +195,40 @@ private function fetchData($url) {
 
     return $body;
 }
+
+private function getPlaceNameFromLatLon($lat, $lon) {
+    $apiKey = getenv('GEOCODING_API_KEY');
+    $url = "https://api.opencagedata.com/geocode/v1/json?q=$lat+$lon&key=$apiKey";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $res = curl_exec($ch);
+    curl_close($ch);
+
+    $data = json_decode($res, true);
+
+    if (isset($data['results'][0]['components'])) {
+        $components = $data['results'][0]['components'];
+
+        // Prioritaskan kabupaten/kota
+        $cityOrRegency = $components['city'] 
+            ?? $components['municipality'] 
+            ?? $components['town'] 
+            ?? $components['county'] 
+            ?? $components['region'] 
+            ?? null;
+
+        $province = $components['state'] ?? null;
+
+        if ($cityOrRegency && $province) {
+            return "$cityOrRegency, $province";
+        }
+    }
+
+    return 'Lokasi Tidak Dikenal';
+}
+
+
 
 }
